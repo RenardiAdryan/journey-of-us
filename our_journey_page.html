@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Journey ❤️</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #fff0f5;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #e91e63;
+    }
+    .counter {
+      font-size: 1.5rem;
+      margin: 10px 0 30px;
+    }
+    .timeline {
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+      padding-left: 40px;
+      border-left: 3px solid #e91e63;
+      text-align: left;
+    }
+    .event {
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      margin: 20px 0;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .event strong {
+      color: #e91e63;
+    }
+    .icon {
+      position: absolute;
+      left: -32px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #e91e63;
+      color: #fff;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    button {
+      background: #e91e63;
+      color: #fff;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 20px;
+    }
+    #loveLetter {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      font-style: italic;
+      color: #444;
+    }
+    #loveLetter img {
+      margin-top: 15px;
+      max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Our Journey ❤️</h1>
+  <div class="counter" id="dayCounter"></div>
+
+  <div class="timeline">
+    <div class="event">
+      <div class="icon">✨</div>
+      <strong>16 Aug</strong> – We first met on Bumble
+    </div>
+    <div class="event">
+      <div class="icon">💬</div>
+      <strong>17–22 Aug</strong> – Chatting every day
+    </div>
+    <div class="event">
+      <div class="icon">📞</div>
+      <strong>23 Aug</strong> – Our first call
+    </div>
+    <div class="event">
+      <div class="icon">💻</div>
+      <strong>10 Sep</strong> – Our first video call
+    </div>
+    <div class="event">
+      <div class="icon">💕</div>
+      <strong>Now</strong> – Getting closer and closer
+    </div>
+  </div>
+
+  <button onclick="showLetter()">Click to open your surprise 💌</button>
+  <div id="loveLetter">
+    <p>Happy Birthday my love ❤️ Even though distance keeps us apart, my heart is always with you. I’m so grateful for every moment we share, and I can’t wait for all the adventures ahead together. 🎂✨</p>
+    <img src="https://via.placeholder.com/400x500.png?text=Your+Photo+Here" alt="My Love">
+  </div>
+
+  <canvas id="confetti"></canvas>
+
+  <script>
+    // Day counter (start from 16 Aug 2024)
+    const startDate = new Date("2024-08-16");
+    const today = new Date();
+    const diffTime = Math.abs(today - startDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    document.getElementById("dayCounter").innerText = `We’ve been together for ${diffDays} days 💞`;
+
+    // Love letter reveal + confetti
+    function showLetter() {
+      document.getElementById("loveLetter").style.display = "block";
+      launchConfetti();
+    }
+
+    // Simple confetti
+    const canvas = document.getElementById('confetti');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let particles = [];
+
+    function launchConfetti() {
+      particles = [];
+      for (let i = 0; i < 150; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height - canvas.height,
+          size: Math.random() * 5 + 5,
+          speed: Math.random() * 3 + 2,
+          color: `hsl(${Math.random() * 360}, 70%, 60%)`
+        });
+      }
+      animate();
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+        p.y += p.speed;
+        if (p.y > canvas.height) p.y = -10;
+      });
+      requestAnimationFrame(animate);
+    }
+  </script>
+</body>
+</html>

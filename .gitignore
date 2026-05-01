@@ -1,0 +1,5 @@
+# Claude agent files
+.claude/
+.agent/
+skills/
+skills-lock.json

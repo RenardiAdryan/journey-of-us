@@ -3,189 +3,928 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Our Journey ❤️</title>
+  <title>Our Journey</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌹</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #562932;   /* deep burgundy — base */
+      --surface: #3d1e23;   /* darker burgundy for cards */
+      --rose:    #933c5e;   /* berry rose — accents, dots, arrows */
+      --sage:    #676954;   /* olive sage — secondary accent */
+      --cream:   #dacebd;   /* warm linen — text */
+      --terracotta: #8f5e51; /* terracotta — warmth accent */
+      --muted:   rgba(218,206,189,0.45);
+      --line:    rgba(147,60,94,0.45);
+    }
+
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #fff0f5;
-      margin: 0;
-      padding: 20px;
-      text-align: center;
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: default;
     }
-    h1 {
-      color: #e91e63;
+
+    /* ── Grain overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.4;
     }
-    .counter {
-      font-size: 1.5rem;
-      margin: 10px 0 30px;
-    }
-    .timeline {
-      max-width: 600px;
-      margin: 0 auto;
-      position: relative;
-      padding-left: 40px;
-      border-left: 3px solid #e91e63;
-      text-align: left;
-    }
-    .event {
-      background: #fff;
-      padding: 15px;
-      border-radius: 12px;
-      margin: 20px 0;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      position: relative;
-    }
-    .event strong {
-      color: #e91e63;
-    }
-    .icon {
-      position: absolute;
-      left: -32px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: #e91e63;
-      color: #fff;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 1rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      position: relative;
+      padding: 60px 20px;
+      text-align: center;
+      overflow: hidden;
     }
-    button {
-      background: #e91e63;
-      color: #fff;
-      border: none;
-      padding: 12px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      margin-top: 20px;
+
+    .hero-glow {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(147,60,94,0.22) 0%, rgba(86,41,50,0.12) 50%, transparent 70%);
+      pointer-events: none;
+      animation: pulse 6s ease-in-out infinite;
     }
-    #loveLetter {
-      display: none;
-      margin-top: 20px;
-      padding: 20px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+
+    /* ── Floating rose petals ── */
+    .petals-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .petal {
+      position: absolute;
+      top: -60px;
+      width: 18px;
+      height: 22px;
+      background: radial-gradient(ellipse at 40% 30%, #933c5e, #562932);
+      border-radius: 150% 0% 150% 0% / 150% 0% 150% 0%;
+      opacity: 0;
+      animation: petalFall linear infinite;
+      transform-origin: center center;
+      filter: drop-shadow(0 2px 4px rgba(86,41,50,0.5));
+    }
+
+    @keyframes petalFall {
+      0%   { opacity: 0; transform: translateX(0) rotate(0deg) scale(0.8); }
+      5%   { opacity: 0.7; }
+      85%  { opacity: 0.5; }
+      100% { opacity: 0; transform: translateX(var(--drift)) translateY(110vh) rotate(var(--spin)) scale(1); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.1); opacity: 1; }
+    }
+
+    .hero-eyebrow {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--cream);
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp 1s 0.3s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 10vw, 7rem);
+      font-weight: 300;
+      line-height: 1;
+      letter-spacing: -0.01em;
+      color: var(--cream);
+      opacity: 0;
+      animation: fadeUp 1s 0.5s forwards;
+    }
+
+    .hero-title em {
       font-style: italic;
-      color: #444;
+      color: var(--rose);
     }
-    #loveLetter img {
-      margin-top: 15px;
-      max-width: 100%;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+
+    .hero-counter {
+      margin-top: 28px;
+      font-size: 1.15rem;
+      color: var(--cream);
+      letter-spacing: 0.06em;
+      opacity: 0;
+      animation: fadeUp 1s 0.8s forwards;
     }
+
+    .hero-counter span {
+      color: var(--cream);
+      font-weight: 500;
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      animation: fadeUp 1s 1.4s forwards;
+    }
+
+    .scroll-hint p {
+      font-size: 0.72rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(218,206,189,0.7);
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--rose), transparent);
+      animation: scrollDrop 2s 1.6s ease-in-out infinite;
+    }
+
+    @keyframes scrollDrop {
+      0% { transform: scaleY(0); transform-origin: top; opacity: 1; }
+      50% { transform: scaleY(1); transform-origin: top; opacity: 1; }
+      100% { transform: scaleY(1); transform-origin: bottom; opacity: 0; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── TIMELINE SECTION ── */
+    .section-label {
+      text-align: center;
+      padding: 80px 20px 20px;
+    }
+
+    .section-label p {
+      font-size: 0.8rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--cream);
+      opacity: 0.75;
+    }
+
+    .section-label h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 300;
+      color: var(--cream);
+      margin-top: 10px;
+      font-style: italic;
+    }
+
+    /* ── TIMELINE ── */
+    .timeline-wrap {
+      max-width: 780px;
+      margin: 60px auto 0;
+      padding: 0 24px 120px;
+      position: relative;
+    }
+
+    /* The vertical spine */
+    .timeline-spine {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, transparent, rgba(143,94,81,0.6) 10%, var(--line) 50%, rgba(103,105,84,0.5) 90%, transparent);
+      transform: translateX(-50%);
+    }
+
+    /* Arrow tip at the bottom of spine */
+    .timeline-spine::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 10px solid var(--rose);
+    }
+
+    /* ── TIMELINE ITEM ── */
+    .tl-item {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      margin-bottom: 64px;
+      position: relative;
+      opacity: 0;
+      transform: scale(0.88) translateY(32px);
+      transition: opacity 0.7s cubic-bezier(.22,1,.36,1), transform 0.7s cubic-bezier(.22,1,.36,1);
+    }
+
+    .tl-item.visible {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    /* Alternate cards left/right */
+    .tl-item:nth-child(odd)  .tl-card { grid-column: 1; justify-self: end; margin-right: 36px; }
+    .tl-item:nth-child(odd)  .tl-dot  { grid-column: 2; }
+    .tl-item:nth-child(odd)  .tl-void { grid-column: 3; }
+
+    .tl-item:nth-child(even) .tl-void { grid-column: 1; }
+    .tl-item:nth-child(even) .tl-dot  { grid-column: 2; }
+    .tl-item:nth-child(even) .tl-card { grid-column: 3; justify-self: start; margin-left: 36px; }
+
+    /* Horizontal connector line from dot to card */
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: calc(50% - 32px);
+      height: 1px;
+      background: var(--line);
+      transform: translateY(-50%);
+    }
+
+    .tl-item:nth-child(odd)::before  { left: 0; }
+    .tl-item:nth-child(even)::before { right: 0; }
+
+    /* Arrow head on connector */
+    .tl-item::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 0;
+      height: 0;
+      transform: translateY(-50%);
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+    }
+
+    .tl-item:nth-child(odd)::after {
+      left: calc(50% - 36px);
+      border-right: 8px solid #933c5e;
+    }
+
+    .tl-item:nth-child(even)::after {
+      right: calc(50% - 36px);
+      border-left: 8px solid #933c5e;
+    }
+
+    .tl-dot {
+      width: 14px;
+      height: 14px;
+      background: var(--rose);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(147,60,94,0.25), 0 0 18px rgba(147,60,94,0.45);
+      position: relative;
+      z-index: 1;
+      flex-shrink: 0;
+    }
+
+    .tl-card {
+      background: var(--surface);
+      border: 1px solid rgba(143,94,81,0.25);
+      border-radius: 16px;
+      padding: 20px 24px;
+      max-width: 300px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .tl-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(147,60,94,0.08) 0%, rgba(103,105,84,0.04) 60%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .tl-card:hover {
+      border-color: rgba(147,60,94,0.5);
+      box-shadow: 0 8px 32px rgba(86,41,50,0.4);
+    }
+
+    .tl-icon {
+      font-size: 1.7rem;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .tl-date {
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--cream);
+      opacity: 0.65;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+    }
+
+    .tl-desc {
+      margin-top: 8px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: var(--cream);
+      line-height: 1.45;
+    }
+
+    /* ── GIFTS SECTION ── */
+    .gifts-section {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 80px 24px 120px;
+    }
+
+    .gifts-section .section-label {
+      padding-top: 0;
+      margin-bottom: 48px;
+    }
+
+    /* Tabs */
+    .tabs-nav {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid rgba(143,94,81,0.3);
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(218,206,189,0.55);
+      padding: 12px 20px;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .tab-btn::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(to right, var(--rose), var(--terracotta));
+      transform: scaleX(0);
+      transition: transform 0.3s cubic-bezier(.22,1,.36,1);
+    }
+
+    .tab-btn.active {
+      color: var(--cream);
+    }
+
+    .tab-btn.active::after {
+      transform: scaleX(1);
+    }
+
+    .tab-btn:hover { color: var(--cream); }
+
+    .tab-panel {
+      display: none;
+      animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) forwards;
+    }
+
+    .tab-panel.active { display: block; }
+
+    /* Gift card */
+    .gift-card {
+      background: var(--surface);
+      border: 1px solid rgba(147,60,94,0.28);
+      border-radius: 20px;
+      padding: 36px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gift-card::before {
+      content: '';
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(143,94,81,0.12) 0%, rgba(147,60,94,0.06) 50%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .gift-card::after {
+      content: '';
+      position: absolute;
+      bottom: -60px;
+      left: -60px;
+      width: 200px;
+      height: 200px;
+      background: radial-gradient(circle, rgba(103,105,84,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .gift-eyebrow {
+      font-size: 0.8rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--cream);
+      opacity: 0.7;
+      margin-bottom: 12px;
+    }
+
+    .gift-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 300;
+      color: var(--cream);
+      line-height: 1.2;
+      margin-bottom: 24px;
+    }
+
+    .gift-title em { font-style: italic; color: var(--rose); }
+
+    .gift-body {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-style: italic;
+      line-height: 1.85;
+      color: var(--cream);
+      white-space: pre-line;
+    }
+
+    .gift-sig {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(103,105,84,0.25);
+    }
+
+    .gift-sig p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      color: rgba(218,206,189,0.7);
+      letter-spacing: 0.08em;
+    }
+
+    .gift-sig strong {
+      display: block;
+      margin-top: 6px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem;
+      font-style: italic;
+      color: var(--cream);
+    }
+
+    .gift-reveal-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 28px;
+      background: none;
+      border: 1px solid rgba(147,60,94,0.5);
+      border-radius: 999px;
+      padding: 12px 28px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--cream);
+      transition: background 0.3s, border-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    }
+
+    .gift-reveal-btn:hover {
+      background: rgba(147,60,94,0.2);
+      border-color: var(--rose);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(147,60,94,0.3);
+    }
+
+    .gift-image-wrap {
+      display: none;
+      margin-top: 28px;
+    }
+
+    .gift-image-wrap img {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* ── Confetti canvas ── */
     canvas {
       position: fixed;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 40px 20px 60px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+    }
+
+    footer span { color: var(--rose); }
+
+    /* ── Hero background texture ── */
+    .hero {
+      background: radial-gradient(ellipse at 50% 60%, rgba(147,60,94,0.18) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 20%, rgba(143,94,81,0.1) 0%, transparent 50%),
+                  radial-gradient(ellipse at 20% 80%, rgba(103,105,84,0.1) 0%, transparent 50%);
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 600px) {
+      /* Hero */
+      .hero { padding: 48px 20px 80px; min-height: 100svh; }
+      .hero-eyebrow { font-size: 0.7rem; letter-spacing: 0.2em; }
+      .hero-counter { font-size: 1rem; }
+
+      /* Section labels */
+      .section-label { padding: 56px 20px 16px; }
+      .section-label p { font-size: 0.7rem; letter-spacing: 0.2em; }
+
+      /* Timeline wrap */
+      .timeline-wrap { margin-top: 32px; padding: 0 16px 80px; }
+
+      /* Spine shifts to left edge */
+      .timeline-spine { left: 20px; }
+
+      /* All items become single-column, cards fill width */
+      .tl-item {
+        display: block;
+        padding-left: 52px;
+        margin-bottom: 40px;
+      }
+      .tl-item:nth-child(odd) .tl-card,
+      .tl-item:nth-child(even) .tl-card {
+        max-width: 100%;
+        margin: 0;
+        width: 100%;
+      }
+
+      /* Dot pinned to the left spine */
+      .tl-item:nth-child(odd) .tl-dot,
+      .tl-item:nth-child(even) .tl-dot {
+        position: absolute;
+        left: 14px;
+        top: 24px;
+        transform: none;
+      }
+
+      /* Show a short horizontal connector from dot to card */
+      .tl-item::before {
+        width: 28px;
+        left: 28px;
+        top: 31px;
+        transform: none;
+      }
+      .tl-item:nth-child(even)::before { right: auto; left: 28px; }
+
+      /* Arrow at end of connector pointing right */
+      .tl-item::after {
+        left: 52px !important;
+        right: auto !important;
+        top: 27px;
+        transform: none;
+        border-right: 7px solid #933c5e !important;
+        border-left: none !important;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+      }
+
+      .tl-void { display: none; }
+
+      /* Card sizing */
+      .tl-card { padding: 16px 18px; border-radius: 12px; }
+      .tl-icon { font-size: 1.4rem; margin-bottom: 6px; }
+      .tl-date { font-size: 0.68rem; }
+      .tl-desc { font-size: 1.1rem; }
+
+      /* Gifts section */
+      .gifts-section { padding: 56px 16px 80px; }
+      .gifts-section .section-label { margin-bottom: 32px; }
+      .gift-card { padding: 24px 20px; border-radius: 16px; }
+      .gift-eyebrow { font-size: 0.72rem; letter-spacing: 0.18em; }
+      .gift-body { font-size: 1.15rem; line-height: 1.75; }
+      .gift-sig p { font-size: 0.82rem; }
+      .gift-sig strong { font-size: 1.1rem; }
+      .gift-reveal-btn { padding: 13px 22px; font-size: 0.78rem; width: 100%; justify-content: center; }
+
+      /* Footer */
+      footer { padding: 32px 20px 48px; font-size: 0.8rem; }
     }
   </style>
 </head>
 <body>
-  <h1>Our Journey ❤️</h1>
-  <div class="counter" id="dayCounter"></div>
 
-  <div class="timeline">
-    <div class="event">
-      <div class="icon">✨</div>
-      <strong>16 Aug</strong> – We first met on Bumble
+  <!-- Floating petals -->
+  <div class="petals-canvas" id="petalsContainer"></div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <p class="hero-eyebrow">A love story, chapter by chapter</p>
+    <h1 class="hero-title">Our <em>Journey</em></h1>
+    <p class="hero-counter" id="dayCounter">Loading…</p>
+    <div class="scroll-hint">
+      <p>Scroll</p>
+      <div class="scroll-line"></div>
     </div>
-    <div class="event">
-      <div class="icon">💬</div>
-      <strong>17–22 Aug</strong> – Chatting every day
+  </section>
+
+  <!-- Timeline -->
+  <div class="section-label">
+    <p>Milestones</p>
+    <h2>The story so far</h2>
+  </div>
+
+  <div class="timeline-wrap">
+    <div class="timeline-spine"></div>
+
+    <div class="tl-item">
+      <div class="tl-card">
+        <span class="tl-icon">✨</span>
+        <div class="tl-date">16 Aug 2024</div>
+        <div class="tl-desc">We first met on Bumble</div>
+      </div>
+      <div class="tl-dot"></div>
+      <div class="tl-void"></div>
     </div>
-    <div class="event">
-      <div class="icon">📞</div>
-      <strong>23 Aug</strong> – Our first call
+
+    <div class="tl-item">
+      <div class="tl-void"></div>
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <span class="tl-icon">💬</span>
+        <div class="tl-date">17 – 22 Aug 2024</div>
+        <div class="tl-desc">Chatting every day</div>
+      </div>
     </div>
-    <div class="event">
-      <div class="icon">💻</div>
-      <strong>10 Sep</strong> – Our first video call
+
+    <div class="tl-item">
+      <div class="tl-card">
+        <span class="tl-icon">📞</span>
+        <div class="tl-date">23 Aug 2024</div>
+        <div class="tl-desc">Our first call</div>
+      </div>
+      <div class="tl-dot"></div>
+      <div class="tl-void"></div>
     </div>
-    <div class="event">
-      <div class="icon">🤝</div>
-      <strong>11 Oct</strong> – Our first meet
+
+    <div class="tl-item">
+      <div class="tl-void"></div>
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <span class="tl-icon">💻</span>
+        <div class="tl-date">10 Sep 2024</div>
+        <div class="tl-desc">Our first video call</div>
+      </div>
     </div>
-    <div class="event">
-      <div class="icon">💕</div>
-      <strong>Now</strong> – Getting closer and closer
+
+    <div class="tl-item">
+      <div class="tl-card">
+        <span class="tl-icon">🤝</span>
+        <div class="tl-date">11 Oct 2024</div>
+        <div class="tl-desc">Our first meet</div>
+      </div>
+      <div class="tl-dot"></div>
+      <div class="tl-void"></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-void"></div>
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <span class="tl-icon">🏡</span>
+        <div class="tl-date">24 Mar 2026</div>
+        <div class="tl-desc">Pertama kali ke rumah dan bertemu orang tua Ufi</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-card">
+        <span class="tl-icon">🎬</span>
+        <div class="tl-date">11 Apr 2026</div>
+        <div class="tl-desc">Nonton Film pertama (Hail Mary in IMAX Studio)</div>
+      </div>
+      <div class="tl-dot"></div>
+      <div class="tl-void"></div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-void"></div>
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <span class="tl-icon">📋</span>
+        <div class="tl-date">29 Apr 2026</div>
+        <div class="tl-desc">Day 1 isi wedding planner</div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-card">
+        <span class="tl-icon">💕</span>
+        <div class="tl-date">Now &amp; Always</div>
+        <div class="tl-desc">Getting closer and closer…</div>
+      </div>
+      <div class="tl-dot"></div>
+      <div class="tl-void"></div>
     </div>
   </div>
 
-  <button onclick="showLetter()">Click to open your surprise 💌</button>
-  <div id="loveLetter">
-    <p>Happy Birthday, my dearest love ❤️ Though distance may stretch between us, my heart beats in rhythm with yours, never far, never apart. Each day with you, whether through a message, a call, or a smile across the screen, feels like a precious gift I treasure deeply.
+  <!-- Gifts Section -->
+  <div class="gifts-section">
+    <div class="section-label">
+      <p>Surprises for you</p>
+      <h2>A little something</h2>
+    </div>
 
-You are the melody in my quiet moments, the warmth in my cold nights, and the light that guides me through every day. I’m grateful for every laugh we’ve shared, every memory we’ve made, and every dream we’re yet to chase together.
+    <nav class="tabs-nav">
+      <button class="tab-btn" data-tab="gift-2025">Birthday 2025 🎂</button>
+      <!-- Add future tabs here -->
+    </nav>
 
-On this special day, may you feel wrapped in my love across the miles, as if my arms could reach through the distance and hold you close. I cannot wait for the chapters ahead—our adventures, our stories, our forever.
+    <div class="tab-panel" id="gift-2025">
+      <div class="gift-card">
+        <p class="gift-eyebrow">A birthday letter — with love from afar</p>
+        <h3 class="gift-title">Happy Birthday,<br><em>my dearest Ufi</em></h3>
+        <div class="gift-body">Though distance may stretch between us, my heart beats in rhythm with yours, never far, never apart. Each day with you, whether through a message, a call, or a smile across the screen, feels like a precious gift I treasure deeply.
 
+You are the melody in my quiet moments, the warmth in my cold nights, and the light that guides me through every day. I'm grateful for every laugh we've shared, every memory we've made, and every dream we're yet to chase together.
 
-</p>
-<p style="font-weight: bold;">
-  Happy Birthday, Ufi my love, my heart, my everything. 🎂✨🌹
-</p>
-<p style="font-weight: bold;">
-  Best Regards,
-  Renardi
-  Your Future Husband
-</p>
-    <img src="https://drive.google.com/thumbnail?id=1erwJK4DteSBqoCaUV3RQInnxAKrC9l9D&sz=w400" alt="My Love">
+On this special day, may you feel wrapped in my love across the miles, as if my arms could reach through the distance and hold you close. I cannot wait for the chapters ahead — our adventures, our stories, our forever.</div>
+        <div class="gift-sig">
+          <p>With all my love,</p>
+          <strong>Renardi — Your Future Husband 🌹</strong>
+        </div>
+        <button class="gift-reveal-btn" onclick="revealPhoto()">
+          <span>✉</span> Open your surprise
+        </button>
+        <div class="gift-image-wrap" id="giftPhoto">
+          <img src="https://drive.google.com/thumbnail?id=1erwJK4DteSBqoCaUV3RQInnxAKrC9l9D&sz=w400" alt="My Love">
+        </div>
+      </div>
+    </div>
+    <!-- Future gift tabs will appear here -->
   </div>
+
+  <footer>
+    Made with <span>♥</span> for Ufi
+  </footer>
 
   <canvas id="confetti"></canvas>
 
   <script>
-    // Day counter (start from 16 Aug 2024)
-    const startDate = new Date("2025-08-16"); 
+    // ── Day counter ──
+    const startDate = new Date("2025-08-16");
     const today = new Date();
-    const diffTime = Math.abs(today - startDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    document.getElementById("dayCounter").innerText = `We’ve been together for ${diffDays} days 💞`;
+    const diffDays = Math.ceil(Math.abs(today - startDate) / (1000 * 60 * 60 * 24));
+    document.getElementById("dayCounter").innerHTML =
+      `Together for <span>${diffDays} days</span> &amp; counting 💞`;
 
-    // Love letter reveal + confetti
-    function showLetter() {
-      document.getElementById("loveLetter").style.display = "block";
+    // ── Rose petal rain ──
+    (function spawnPetals() {
+      const container = document.getElementById('petalsContainer');
+      const petalCount = 18;
+      for (let i = 0; i < petalCount; i++) {
+        const p = document.createElement('div');
+        p.className = 'petal';
+        const left   = Math.random() * 100;
+        const delay  = Math.random() * 14;
+        const dur    = 8 + Math.random() * 10;
+        const drift  = (Math.random() - 0.5) * 180 + 'px';
+        const spin   = (Math.random() * 540 - 270) + 'deg';
+        const scale  = 0.5 + Math.random() * 0.9;
+        const hue    = Math.random() > 0.5 ? '#933c5e' : '#8f5e51';
+        p.style.cssText = `
+          left: ${left}%;
+          width: ${14 * scale}px;
+          height: ${18 * scale}px;
+          background: radial-gradient(ellipse at 40% 30%, ${hue}, #562932);
+          animation-duration: ${dur}s;
+          animation-delay: ${delay}s;
+          --drift: ${drift};
+          --spin: ${spin};
+        `;
+        container.appendChild(p);
+      }
+    })();
+
+    // ── Scroll-reveal with IntersectionObserver ──
+    const items = document.querySelectorAll('.tl-item');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    items.forEach(i => obs.observe(i));
+
+    // ── Tabs ──
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.tab;
+        const isActive = btn.classList.contains('active');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        if (!isActive) {
+          btn.classList.add('active');
+          document.getElementById(target).classList.add('active');
+        }
+      });
+    });
+
+    // ── Gift reveal ──
+    function revealPhoto() {
+      const wrap = document.getElementById('giftPhoto');
+      wrap.style.display = 'block';
       launchConfetti();
     }
 
-    // Simple confetti
+    // ── Confetti ──
     const canvas = document.getElementById('confetti');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
     let particles = [];
+    let running = false;
 
     function launchConfetti() {
       particles = [];
-      for (let i = 0; i < 150; i++) {
+      const colors = ['#933c5e','#8f5e51','#dacebd','#676954','#562932','#c47a90'];
+      for (let i = 0; i < 180; i++) {
         particles.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height - canvas.height,
-          size: Math.random() * 5 + 5,
-          speed: Math.random() * 3 + 2,
-          color: `hsl(${Math.random() * 360}, 70%, 60%)`
+          size: Math.random() * 7 + 3,
+          speed: Math.random() * 2.5 + 1.5,
+          rot: Math.random() * 360,
+          rotSpeed: (Math.random() - 0.5) * 4,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          shape: Math.random() > 0.5 ? 'rect' : 'circle',
         });
       }
-      animate();
+      if (!running) { running = true; animate(); }
     }
 
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
       particles.forEach(p => {
-        ctx.fillStyle = p.color;
-        ctx.fillRect(p.x, p.y, p.size, p.size);
         p.y += p.speed;
-        if (p.y > canvas.height) p.y = -10;
+        p.rot += p.rotSpeed;
+        if (p.y < canvas.height + 20) alive = true;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot * Math.PI / 180);
+        ctx.fillStyle = p.color;
+        if (p.shape === 'rect') ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.5);
+        else { ctx.beginPath(); ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2); ctx.fill(); }
+        ctx.restore();
       });
-      requestAnimationFrame(animate);
+      if (alive) requestAnimationFrame(animate);
+      else running = false;
     }
   </script>
 </body>

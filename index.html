@@ -142,6 +142,15 @@
       font-weight: 500;
     }
 
+    .hero-subcounter {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: var(--cream);
+      opacity: 0;
+      letter-spacing: 0.08em;
+      animation: fadeUp 1s 1s forwards;
+    }
+
     .scroll-hint {
       position: absolute;
       bottom: 36px;
@@ -201,48 +210,165 @@
       font-style: italic;
     }
 
-    /* ── TIMELINE ── */
+    /* ── TIMELINE — a winding pathway ── */
     .timeline-wrap {
-      max-width: 780px;
-      margin: 60px auto 0;
-      padding: 0 24px 120px;
+      margin: 60px 0 0;
+      padding: 0 0 40px;
       position: relative;
     }
 
-    /* The vertical spine */
-    .timeline-spine {
-      position: absolute;
-      left: 50%;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: linear-gradient(to bottom, transparent, rgba(143,94,81,0.6) 10%, var(--line) 50%, rgba(103,105,84,0.5) 90%, transparent);
-      transform: translateX(-50%);
+    /* Horizontal scroller holding the path */
+    .path-scroll {
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+      padding: 12px 0 28px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(147,60,94,0.5) transparent;
     }
 
-    /* Arrow tip at the bottom of spine */
-    .timeline-spine::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 6px solid transparent;
-      border-right: 6px solid transparent;
-      border-top: 10px solid var(--rose);
+    .path-scroll::-webkit-scrollbar { height: 8px; }
+    .path-scroll::-webkit-scrollbar-track { background: rgba(143,94,81,0.12); border-radius: 99px; }
+    .path-scroll::-webkit-scrollbar-thumb {
+      background: linear-gradient(90deg, rgba(147,60,94,0.65), rgba(103,105,84,0.65));
+      border-radius: 99px;
     }
 
-    /* ── TIMELINE ITEM ── */
-    .tl-item {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
+    /* The track: as wide as all the steps put together */
+    .path-track {
+      position: relative;
+      height: 520px;
+      /* Runway on each side so the road eases in and out of view instead
+         of hitting the screen edge. Scales with the viewport so it holds
+         at every width. */
+      padding: 0 max(80px, 35vw);
+      display: flex;
       align-items: center;
-      margin-bottom: 64px;
-      position: relative;
+      width: max-content;
+    }
+
+    /* The winding road, drawn as SVG behind the cards */
+    .path-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    /* Faint full road, always visible */
+    .path-road {
+      fill: none;
+      stroke: var(--line);
+      stroke-width: 2;
+      stroke-linecap: round;
+      opacity: 0.45;
+      stroke-dasharray: 7 9;
+    }
+
+    /* The travelled part of the road, revealed on scroll */
+    .path-travelled {
+      fill: none;
+      stroke: url(#pathGrad);
+      stroke-width: 3;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 8px rgba(147,60,94,0.55));
+      transition: stroke-dashoffset 0.5s linear;
+    }
+
+    /* ── Path navigation ── */
+    .path-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 0 24px 14px;
+    }
+
+    .path-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(143,94,81,0.4);
+      background: var(--surface);
+      color: var(--cream);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: border-color 0.25s, background 0.25s, transform 0.25s, opacity 0.25s;
+      display: grid;
+      place-items: center;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .path-btn:hover:not(:disabled) {
+      border-color: rgba(147,60,94,0.7);
+      background: rgba(147,60,94,0.2);
+      transform: translateY(-2px);
+    }
+
+    .path-btn:disabled {
+      opacity: 0.3;
+      cursor: default;
+    }
+
+    .path-btn:focus-visible,
+    .path-scroll:focus-visible {
+      outline: 2px solid var(--rose);
+      outline-offset: 3px;
+    }
+
+    .path-progress {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      color: var(--cream);
+      opacity: 0.6;
+      min-width: 68px;
+      text-align: center;
+    }
+
+    /* ── Ghost branches — the timelines we didn't live ── */
+    .path-branch {
+      fill: none;
+      stroke: url(#branchFade);
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-dasharray: 3 7;
       opacity: 0;
-      transform: scale(0.88) translateY(32px);
+      transition: opacity 1.2s ease;
+    }
+
+    /* Each branch surfaces as its milestone is reached */
+    .path-branch.lit { opacity: 1; }
+
+    /* A faint spark where a branch peels away from the road */
+    .path-fork {
+      fill: var(--terracotta);
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+
+    .path-fork.lit { opacity: 0.5; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .path-branch, .path-fork { transition: none; }
+    }
+
+    /* ── TIMELINE ITEM — one stop along the path ── */
+    .tl-item {
+      position: relative;
+      flex: 0 0 auto;
+      width: 260px;
+      height: 100%;
+      scroll-snap-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transform: scale(0.88) translateY(24px);
       transition: opacity 0.7s cubic-bezier(.22,1,.36,1), transform 0.7s cubic-bezier(.22,1,.36,1);
     }
 
@@ -251,49 +377,30 @@
       transform: scale(1) translateY(0);
     }
 
-    /* Alternate cards left/right */
-    .tl-item:nth-child(odd)  .tl-card { grid-column: 1; justify-self: end; margin-right: 36px; }
-    .tl-item:nth-child(odd)  .tl-dot  { grid-column: 2; }
-    .tl-item:nth-child(odd)  .tl-void { grid-column: 3; }
-
-    .tl-item:nth-child(even) .tl-void { grid-column: 1; }
-    .tl-item:nth-child(even) .tl-dot  { grid-column: 2; }
-    .tl-item:nth-child(even) .tl-card { grid-column: 3; justify-self: start; margin-left: 36px; }
-
-    /* Horizontal connector line from dot to card */
-    .tl-item::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      width: calc(50% - 32px);
-      height: 1px;
-      background: var(--line);
-      transform: translateY(-50%);
+    /* Odd stops sit above the road, even ones below — so the road weaves
+       up and down between them instead of running dead straight. */
+    .tl-item:nth-of-type(odd) {
+      flex-direction: column;
+      justify-content: flex-start;
+      padding-top: 40px;
     }
 
-    .tl-item:nth-child(odd)::before  { left: 0; }
-    .tl-item:nth-child(even)::before { right: 0; }
-
-    /* Arrow head on connector */
-    .tl-item::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      width: 0;
-      height: 0;
-      transform: translateY(-50%);
-      border-top: 5px solid transparent;
-      border-bottom: 5px solid transparent;
+    .tl-item:nth-of-type(even) {
+      flex-direction: column-reverse;
+      justify-content: flex-start;
+      padding-bottom: 40px;
     }
 
-    .tl-item:nth-child(odd)::after {
-      left: calc(50% - 36px);
-      border-right: 8px solid #933c5e;
+    /* The connector stem from card down/up to the dot on the road */
+    .tl-void {
+      width: 1px;
+      height: 34px;
+      background: linear-gradient(to bottom, rgba(147,60,94,0.7), rgba(147,60,94,0.15));
+      flex-shrink: 0;
     }
 
-    .tl-item:nth-child(even)::after {
-      right: calc(50% - 36px);
-      border-left: 8px solid #933c5e;
+    .tl-item:nth-of-type(even) .tl-void {
+      background: linear-gradient(to top, rgba(147,60,94,0.7), rgba(147,60,94,0.15));
     }
 
     .tl-dot {
@@ -303,19 +410,34 @@
       border-radius: 50%;
       box-shadow: 0 0 0 4px rgba(147,60,94,0.25), 0 0 18px rgba(147,60,94,0.45);
       position: relative;
-      z-index: 1;
+      z-index: 2;
       flex-shrink: 0;
+    }
+
+    /* Milestone number badge riding on the dot */
+    .tl-dot::after {
+      content: attr(data-step);
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.5rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0;
     }
 
     .tl-card {
       background: var(--surface);
       border: 1px solid rgba(143,94,81,0.25);
       border-radius: 16px;
-      padding: 20px 24px;
-      max-width: 300px;
-      transition: border-color 0.3s, box-shadow 0.3s;
+      padding: 20px 22px;
+      width: 232px;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
       position: relative;
       overflow: hidden;
+      z-index: 1;
     }
 
     .tl-card::before {
@@ -329,6 +451,31 @@
     .tl-card:hover {
       border-color: rgba(147,60,94,0.5);
       box-shadow: 0 8px 32px rgba(86,41,50,0.4);
+      transform: translateY(-4px);
+    }
+
+    /* Hint that the pathway scrolls sideways */
+    .path-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--cream);
+      opacity: 0.5;
+      padding: 0 24px 8px;
+    }
+
+    .path-hint span:nth-child(2) {
+      animation: nudge 1.8s ease-in-out infinite;
+    }
+
+    @keyframes nudge {
+      0%, 100% { transform: translateX(0); opacity: 0.6; }
+      50%      { transform: translateX(6px); opacity: 1; }
     }
 
     .tl-icon {
@@ -481,6 +628,118 @@
       white-space: pre-line;
     }
 
+    /* ── Paged story reader ──
+       One page shown at a time so a long letter reads like a little book
+       instead of an endless scroll. */
+    .story-book {
+      margin-top: 4px;
+    }
+
+    .story-pages {
+      position: relative;
+      /* Holds a steady height so the controls don't jump between pages of
+         different lengths. */
+      min-height: 420px;
+    }
+
+    .story-page {
+      display: none;
+    }
+
+    .story-page.active {
+      display: block;
+      animation: fadeUp 0.55s cubic-bezier(.22,1,.36,1) forwards;
+    }
+
+    .story-page-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--rose);
+      opacity: 0.85;
+      margin-bottom: 18px;
+    }
+
+    .story-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-style: italic;
+      line-height: 1.85;
+      color: var(--cream);
+      white-space: pre-line;
+    }
+
+    /* The body is already italic, so a film title needs another cue to read
+       as emphasis at all. */
+    .story-text em {
+      font-style: normal;
+      color: var(--rose);
+    }
+
+    /* Controls */
+    .story-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(103,105,84,0.25);
+    }
+
+    .story-btn {
+      background: none;
+      border: 1px solid rgba(147,60,94,0.5);
+      border-radius: 999px;
+      padding: 10px 22px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--cream);
+      transition: background 0.3s, border-color 0.3s, transform 0.2s, opacity 0.3s;
+      white-space: nowrap;
+    }
+
+    .story-btn:hover:not(:disabled) {
+      background: rgba(147,60,94,0.2);
+      border-color: var(--rose);
+      transform: translateY(-2px);
+    }
+
+    .story-btn:disabled {
+      opacity: 0.28;
+      cursor: default;
+    }
+
+    .story-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .story-dot {
+      width: 8px;
+      height: 8px;
+      padding: 0;
+      border-radius: 50%;
+      border: none;
+      background: rgba(218,206,189,0.28);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .story-dot:hover { background: rgba(218,206,189,0.55); }
+
+    .story-dot.active {
+      background: var(--rose);
+      transform: scale(1.5);
+    }
+
     .gift-sig {
       margin-top: 28px;
       padding-top: 20px;
@@ -579,62 +838,29 @@
       .section-label { padding: 56px 20px 16px; }
       .section-label p { font-size: 0.7rem; letter-spacing: 0.2em; }
 
-      /* Timeline wrap */
-      .timeline-wrap { margin-top: 32px; padding: 0 16px 80px; }
+      /* Pathway — same winding road, tightened for a phone */
+      .timeline-wrap { margin-top: 24px; padding: 0 0 56px; }
+      .path-hint { font-size: 0.62rem; letter-spacing: 0.18em; }
 
-      /* Spine shifts to left edge */
-      .timeline-spine { left: 20px; }
-
-      /* All items become single-column, cards fill width */
-      .tl-item {
-        display: block;
-        padding-left: 52px;
-        margin-bottom: 40px;
-      }
-      .tl-item:nth-child(odd) .tl-card,
-      .tl-item:nth-child(even) .tl-card {
-        max-width: 100%;
-        margin: 0;
-        width: 100%;
+      .path-track {
+        height: 400px;
+        /* Generous runway so the road eases in and out of view rather
+           than shooting straight off the edge on a narrow screen. */
+        padding: 0 50vw;
       }
 
-      /* Dot pinned to the left spine */
-      .tl-item:nth-child(odd) .tl-dot,
-      .tl-item:nth-child(even) .tl-dot {
-        position: absolute;
-        left: 14px;
-        top: 24px;
-        transform: none;
-      }
+      .tl-item { width: 200px; }
+      .tl-void { height: 24px; }
 
-      /* Show a short horizontal connector from dot to card */
-      .tl-item::before {
-        width: 28px;
-        left: 28px;
-        top: 31px;
-        transform: none;
-      }
-      .tl-item:nth-child(even)::before { right: auto; left: 28px; }
-
-      /* Arrow at end of connector pointing right */
-      .tl-item::after {
-        left: 52px !important;
-        right: auto !important;
-        top: 27px;
-        transform: none;
-        border-right: 7px solid #933c5e !important;
-        border-left: none !important;
-        border-top: 4px solid transparent;
-        border-bottom: 4px solid transparent;
-      }
-
-      .tl-void { display: none; }
+      /* Shallower stagger — keeps the weave gentle at narrow widths */
+      .tl-item:nth-of-type(odd)  { padding-top: 22px; }
+      .tl-item:nth-of-type(even) { padding-bottom: 22px; }
 
       /* Card sizing */
-      .tl-card { padding: 16px 18px; border-radius: 12px; }
+      .tl-card { padding: 16px 18px; border-radius: 12px; width: 184px; }
       .tl-icon { font-size: 1.4rem; margin-bottom: 6px; }
       .tl-date { font-size: 0.68rem; }
-      .tl-desc { font-size: 1.1rem; }
+      .tl-desc { font-size: 1.05rem; }
 
       /* Gifts section */
       .gifts-section { padding: 56px 16px 80px; }
@@ -645,6 +871,11 @@
       .gift-sig p { font-size: 0.82rem; }
       .gift-sig strong { font-size: 1.1rem; }
       .gift-reveal-btn { padding: 13px 22px; font-size: 0.78rem; width: 100%; justify-content: center; }
+      .story-text { font-size: 1.15rem; line-height: 1.75; }
+      .story-pages { min-height: 380px; }
+      .story-nav { flex-wrap: wrap; justify-content: center; }
+      .story-btn { flex: 1 1 40%; text-align: center; padding: 12px 14px; }
+      .story-dots { order: -1; width: 100%; }
 
       /* Footer */
       footer { padding: 32px 20px 48px; font-size: 0.8rem; }
@@ -662,6 +893,7 @@
     <p class="hero-eyebrow">A love story, chapter by chapter</p>
     <h1 class="hero-title">Our <em>Journey</em></h1>
     <p class="hero-counter" id="dayCounter">Loading…</p>
+    <p class="hero-subcounter" id="dayCounterYears"></p>
     <div class="scroll-hint">
       <p>Scroll</p>
       <div class="scroll-line"></div>
@@ -674,97 +906,140 @@
     <h2>The story so far</h2>
   </div>
 
+  <p class="path-hint"><span>Follow the path sideways</span><span>→</span></p>
+
   <div class="timeline-wrap">
-    <div class="timeline-spine"></div>
-
-    <div class="tl-item">
-      <div class="tl-card">
-        <span class="tl-icon">✨</span>
-        <div class="tl-date">16 Aug 2025</div>
-        <div class="tl-desc">We first met on Bumble</div>
-      </div>
-      <div class="tl-dot"></div>
-      <div class="tl-void"></div>
+    <div class="path-nav">
+      <button class="path-btn" id="pathPrev" type="button" aria-label="Previous milestone">←</button>
+      <span class="path-progress" id="pathProgress" aria-hidden="true"></span>
+      <button class="path-btn" id="pathNext" type="button" aria-label="Next milestone">→</button>
     </div>
 
-    <div class="tl-item">
-      <div class="tl-void"></div>
-      <div class="tl-dot"></div>
-      <div class="tl-card">
-        <span class="tl-icon">💬</span>
-        <div class="tl-date">17 – 22 Aug 2025</div>
-        <div class="tl-desc">Chatting every day</div>
-      </div>
-    </div>
+    <div class="path-scroll" id="pathScroll" tabindex="0" role="group" aria-label="Milestones along our journey">
+      <div class="path-track" id="pathTrack">
+        <svg class="path-svg" id="pathSvg">
+          <defs>
+            <linearGradient id="pathGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"   stop-color="#8f5e51"/>
+              <stop offset="50%"  stop-color="#933c5e"/>
+              <stop offset="100%" stop-color="#676954"/>
+            </linearGradient>
 
-    <div class="tl-item">
-      <div class="tl-card">
-        <span class="tl-icon">📞</span>
-        <div class="tl-date">23 Aug 2025</div>
-        <div class="tl-desc">Our first call</div>
-      </div>
-      <div class="tl-dot"></div>
-      <div class="tl-void"></div>
-    </div>
+            <!-- Ghost branches dissolve as they leave the main road -->
+            <linearGradient id="branchFade" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"   stop-color="#933c5e" stop-opacity="0.55"/>
+              <stop offset="45%"  stop-color="#8f5e51" stop-opacity="0.22"/>
+              <stop offset="100%" stop-color="#676954" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
 
-    <div class="tl-item">
-      <div class="tl-void"></div>
-      <div class="tl-dot"></div>
-      <div class="tl-card">
-        <span class="tl-icon">💻</span>
-        <div class="tl-date">10 Sep 2025</div>
-        <div class="tl-desc">Our first video call</div>
-      </div>
-    </div>
+          <!-- The timelines we didn't live -->
+          <g class="path-branches" id="pathBranches"></g>
 
-    <div class="tl-item">
-      <div class="tl-card">
-        <span class="tl-icon">🤝</span>
-        <div class="tl-date">11 Oct 2025</div>
-        <div class="tl-desc">Our first meet</div>
-      </div>
-      <div class="tl-dot"></div>
-      <div class="tl-void"></div>
-    </div>
+          <path class="path-road"      id="pathRoad"      d=""/>
+          <path class="path-travelled" id="pathTravelled" d=""/>
+        </svg>
 
-    <div class="tl-item">
-      <div class="tl-void"></div>
-      <div class="tl-dot"></div>
-      <div class="tl-card">
-        <span class="tl-icon">🏡</span>
-        <div class="tl-date">24 Mar 2026</div>
-        <div class="tl-desc">Pertama kali ke rumah dan bertemu orang tua Ufi</div>
+      <div class="tl-item">
+        <div class="tl-card">
+          <span class="tl-icon">✨</span>
+          <div class="tl-date">16 Aug 2025</div>
+          <div class="tl-desc">We first met on Bumble</div>
+        </div>
+        <div class="tl-void"></div>
+        <div class="tl-dot" data-step="1"></div>
       </div>
-    </div>
-
-    <div class="tl-item">
-      <div class="tl-card">
-        <span class="tl-icon">🎬</span>
-        <div class="tl-date">11 Apr 2026</div>
-        <div class="tl-desc">Nonton Film pertama (Hail Mary in IMAX Studio)</div>
+      <div class="tl-item">
+        <div class="tl-card">
+          <span class="tl-icon">💬</span>
+          <div class="tl-date">17 – 22 Aug 2025</div>
+          <div class="tl-desc">Chatting every day</div>
+        </div>
+        <div class="tl-void"></div>
+        <div class="tl-dot" data-step="2"></div>
       </div>
-      <div class="tl-dot"></div>
-      <div class="tl-void"></div>
-    </div>
-
-    <div class="tl-item">
-      <div class="tl-void"></div>
-      <div class="tl-dot"></div>
-      <div class="tl-card">
-        <span class="tl-icon">📋</span>
-        <div class="tl-date">29 Apr 2026</div>
-        <div class="tl-desc">Day 1 isi wedding planner</div>
+      <div class="tl-item">
+        <div class="tl-card">
+          <span class="tl-icon">📞</span>
+          <div class="tl-date">23 Aug 2025</div>
+          <div class="tl-desc">Our first call</div>
+        </div>
+        <div class="tl-void"></div>
+        <div class="tl-dot" data-step="3"></div>
       </div>
-    </div>
-
-    <div class="tl-item">
-      <div class="tl-card">
-        <span class="tl-icon">💕</span>
-        <div class="tl-date">Now &amp; Always</div>
-        <div class="tl-desc">Getting closer and closer…</div>
+      <div class="tl-item">
+        <div class="tl-card">
+          <span class="tl-icon">💻</span>
+          <div class="tl-date">10 Sep 2025</div>
+          <div class="tl-desc">Our first video call</div>
+        </div>
+        <div class="tl-void"></div>
+        <div class="tl-dot" data-step="4"></div>
       </div>
-      <div class="tl-dot"></div>
-      <div class="tl-void"></div>
+      <div class="tl-item">
+        <div class="tl-card">
+          <span class="tl-icon">🤝</span>
+          <div class="tl-date">11 Oct 2025</div>
+          <div class="tl-desc">Our first meet</div>
+        </div>
+        <div class="tl-void"></div>
+        <div class="tl-dot" data-step="5"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-card">
+          <span class="tl-icon">🏡</span>
+          <div class="tl-date">24 Mar 2026</div>
+          <div class="tl-desc">First visit to her home and meeting Ufi's parents</div>
+        </div>
+        <div class="tl-void"></div>
+        <div class="tl-dot" data-step="6"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-card">
+          <span class="tl-icon">🎬</span>
+          <div class="tl-date">11 Apr 2026</div>
+          <div class="tl-desc">Our first movie together (Hail Mary at IMAX)</div>
+        </div>
+        <div class="tl-void"></div>
+        <div class="tl-dot" data-step="7"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-card">
+          <span class="tl-icon">📋</span>
+          <div class="tl-date">29 Apr 2026</div>
+          <div class="tl-desc">Day 1 of filling in the wedding planner</div>
+        </div>
+        <div class="tl-void"></div>
+        <div class="tl-dot" data-step="8"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-card">
+          <span class="tl-icon">🕹️</span>
+          <div class="tl-date">24 May 2026</div>
+          <div class="tl-desc">First time at Timezone arcade and strolling with Ufi's friends</div>
+        </div>
+        <div class="tl-void"></div>
+        <div class="tl-dot" data-step="9"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-card">
+          <span class="tl-icon">👨</span>
+          <div class="tl-date">1 Aug 2026</div>
+          <div class="tl-desc">First intense interaction with Ufi's dad</div>
+        </div>
+        <div class="tl-void"></div>
+        <div class="tl-dot" data-step="10"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-card">
+          <span class="tl-icon">💕</span>
+          <div class="tl-date">Now &amp; Always</div>
+          <div class="tl-desc">Getting closer and closer…</div>
+        </div>
+        <div class="tl-void"></div>
+        <div class="tl-dot" data-step="11"></div>
+      </div>
+      </div>
     </div>
   </div>
 
@@ -777,6 +1052,7 @@
 
     <nav class="tabs-nav">
       <button class="tab-btn" data-tab="gift-2025">Birthday 2025 🎂</button>
+      <button class="tab-btn" data-tab="gift-2026">Birthday 2026 🎂</button>
       <!-- Add future tabs here -->
     </nav>
 
@@ -801,6 +1077,287 @@ On this special day, may you feel wrapped in my love across the miles, as if my 
         </div>
       </div>
     </div>
+
+    <div class="tab-panel" id="gift-2026">
+      <div class="gift-card">
+        <p class="gift-eyebrow">Our journey — a story in nine pages</p>
+        <h3 class="gift-title">Happy Birthday,<br><em>my dearest Ufi</em></h3>
+
+        <div class="story-book" id="storyBook">
+          <div class="story-pages">
+
+            <div class="story-page active">
+              <p class="story-page-label">Page 1 — The Beginning</p>
+              <div class="story-text">I sometimes think about how quietly you entered my life.
+
+We first crossed paths one ordinary day, with no idea that a simple hello would eventually lead us here. There was nothing dramatic about the beginning. Just two people deciding to start a conversation, curious enough to see where it might go.
+
+Then, somehow, we kept talking.
+
+Day after day, our conversations became part of our lives. At first, it was just getting to know each other—asking questions, sharing stories, talking about whatever came to mind.
+
+But somewhere in between those conversations, something changed.
+
+I began to notice your absence when you weren't around. I began to look forward to seeing your messages.
+
+You were slowly becoming part of my everyday life without either of us making a conscious decision for that to happen.</div>
+            </div>
+
+            <div class="story-page">
+              <p class="story-page-label">Page 2 — A Voice, Then a Face</p>
+              <div class="story-text">And then we heard each other's voices for the first time.
+
+It was different from texting. Words on a screen give you time to think, but a voice carries something more. The pauses, the laughter, the tone—it makes someone feel closer in a way that messages cannot.
+
+After that, seeing each other through a video call made the distance feel even stranger.
+
+There you were.
+
+I could see your face. I could hear you. We could talk and laugh together.
+
+Yet there was still a screen between us.
+
+I think that was when I first understood the strange nature of being close to someone who is far away.
+
+Technology could bring us together for a while, but eventually the call would end. The screen would go quiet. And I would be reminded that you were still somewhere else.
+
+Maybe that was when I started to miss you.</div>
+            </div>
+
+            <div class="story-page">
+              <p class="story-page-label">Page 3 — Finally Meeting</p>
+              <div class="story-text">So when we finally met in person, there was something almost surreal about it.
+
+After knowing your words, your voice, and your face through a screen, you were suddenly standing right in front of me.
+
+There was no connection to lose, no screen to look through, no distance to imagine.
+
+Just you.
+
+I had already spent so much time getting to know you, but being beside you made me realize that there is a difference between knowing someone and simply having them there.
+
+And strangely, having you there made the distance afterward feel harder.
+
+Because once you know what it feels like to have someone beside you, you become more aware of what it means when they are not.</div>
+            </div>
+
+            <div class="story-page">
+              <p class="story-page-label">Page 4 — The Waiting</p>
+              <div class="story-text">We spent a long time apart after that.
+
+Almost six months passed before I came to your home and met your parents.
+
+Six months is not particularly long when you look at it on a calendar.
+
+But when you are waiting for someone, you experience time differently.
+
+There were days when I wished I could see you instead of seeing you through a screen.
+
+Days when a conversation had to end because there was nowhere else for it to go.
+
+Days when the phone became quiet and all I could do was continue with everything else.
+
+But maybe that distance was teaching me something.
+
+That love isn't always about being beside each other.
+
+Sometimes it is about staying close when you cannot be.</div>
+            </div>
+
+            <div class="story-page">
+              <p class="story-page-label">Page 5 — Entering Your World</p>
+              <div class="story-text">And when I finally came to your home, it felt like I was stepping into a part of your life that I had only known from a distance.
+
+I met your parents.
+
+I saw the place that was yours before I ever became part of your story.
+
+There was something meaningful about that.
+
+Not because it was some grand occasion, but because I was beginning to understand that loving you also meant slowly becoming familiar with the people and places that shaped you.
+
+Not long after that, we did something wonderfully ordinary.
+
+We went to the cinema together and watched <em>Hail Mary</em> at IMAX.
+
+After everything that had been complicated by distance, there was something comforting about simply sitting beside you.
+
+We didn't have to call.
+
+We didn't have to stare at a screen from different places.
+
+We were just there, together, watching the same movie.</div>
+            </div>
+
+            <div class="story-page">
+              <p class="story-page-label">Page 6 — The Ordinary Moments</p>
+              <div class="story-text">And I think that was when I started to appreciate the ordinary side of what I wanted with you.
+
+Not only the big moments.
+
+Not only the memorable days.
+
+But the simple ones too.
+
+The days that probably wouldn't sound important when told as a story, but would matter because they were ours.
+
+As I became more involved in your world, I also began spending time around the people who were part of it.
+
+I remember going to Timezone with you and your friends, walking around, laughing, just being there.
+
+It was another small moment, but I think those moments matter.
+
+Because knowing someone isn't only about knowing how they are when they are with you.
+
+It is also about seeing them with their friends, in familiar places, in the parts of life that existed before you arrived.
+
+Little by little, I was getting to know more of your world.</div>
+            </div>
+
+            <div class="story-page">
+              <p class="story-page-label">Page 7 — Your Dad</p>
+              <div class="story-text">And then there was your dad.
+
+I had always been a little nervous around him. Not because he had to say anything intimidating, but because I knew who I was becoming in relation to you.
+
+The man who wants to marry his daughter carries a different kind of weight.
+
+Then one day, I had a flat tyre.
+
+And your dad helped me change it.
+
+It's funny how such a simple thing can stay in your memory.
+
+It wasn't a grand conversation.
+
+There was no big moment.
+
+Just me dealing with a problem, and your dad standing there helping me fix it.
+
+But maybe that is exactly why I remember it.
+
+For all the things I had imagined about meeting your family, it was a flat tyre that gave me one of my most genuine moments with your dad.
+
+I had been nervous about how he saw me, whether I was good enough, whether I was someone he could trust.
+
+And then there we were, doing something completely ordinary.
+
+Changing a tyre.
+
+Maybe I will remember that more than any carefully chosen words, because sometimes closeness isn't created by conversations at all.
+
+Sometimes it is created simply by helping someone when they need it.</div>
+            </div>
+
+            <div class="story-page">
+              <p class="story-page-label">Page 8 — Looking Back</p>
+              <div class="story-text">Looking back at everything now, I don't think our story is made up of one moment that suddenly made everything clear.
+
+It feels more like a collection of small changes.
+
+A stranger becoming someone I wanted to talk to every day.
+
+A voice becoming familiar.
+
+A face becoming someone I wanted to see in front of me.
+
+Distance becoming something we learned to live with.
+
+A home becoming somewhere I could walk into.
+
+Parents becoming people I wanted to know.
+
+A movie becoming a memory simply because I was sitting beside you.
+
+Walking around with your friends.
+
+And a flat tyre somehow becoming a memory of your dad helping me.
+
+None of those moments, by themselves, explains where we are now.
+
+But together, they do.
+
+Somewhere along the way, you stopped being someone I was simply getting to know.
+
+You became someone whose life I want to share.</div>
+            </div>
+
+            <div class="story-page">
+              <p class="story-page-label">Page 9 — Now</p>
+              <div class="story-text">And now, here we are.
+
+Still learning.
+
+Still growing closer.
+
+Still figuring things out.
+
+There are still places we haven't been, ordinary mornings we haven't shared, and parts of each other we are still discovering.
+
+And maybe that's what makes this moment special.
+
+Because today, you turn 25.
+
+Another year of your life has arrived, and somehow, I am grateful that I get to be here for this chapter of it.
+
+When I think about everything that has happened since we first crossed paths, I realize how much can change without us noticing. A simple conversation can become something you look forward to. A voice can become familiar. Someone far away can slowly become someone you cannot imagine your days without.
+
+And now I get to watch you become another year older, carrying everything you've been through and everything you are still becoming.
+
+I don't know exactly what the next years will look like.
+
+I don't know all the places we'll go, all the ordinary mornings we'll wake up to, or all the little memories that are still waiting for us.
+
+But I know I want to be there for them.
+
+Not just for the big moments.
+
+For the ordinary ones too.
+
+The quiet mornings.
+
+The tired evenings.
+
+The silly conversations.
+
+The difficult days.
+
+The small celebrations that nobody else will remember but us.
+
+Because maybe that's what I want most—not to know exactly how our story ends, but to keep being part of the chapters as they come.
+
+So, happy 25th birthday, Ufi.
+
+I hope this year is kind to you.
+
+And I hope that when you look back on your 25th someday, you remember that somewhere along the way, there was someone who was quietly, sincerely, and completely happy to be walking beside you.
+
+One conversation.
+
+One ordinary day.
+
+One step closer.
+
+And then another.
+
+Happy birthday, my love.</div>
+            </div>
+
+          </div>
+
+          <div class="story-nav">
+            <button class="story-btn" id="storyPrev" type="button">← Back</button>
+            <div class="story-dots" id="storyDots" role="tablist" aria-label="Story pages"></div>
+            <button class="story-btn" id="storyNext" type="button">Next →</button>
+          </div>
+        </div>
+
+        <div class="gift-sig">
+          <p>With all my love,</p>
+          <strong>Renardi — Your Future Husband 🌹</strong>
+        </div>
+      </div>
+    </div>
     <!-- Future gift tabs will appear here -->
   </div>
 
@@ -817,6 +1374,30 @@ On this special day, may you feel wrapped in my love across the miles, as if my 
     const diffDays = Math.ceil(Math.abs(today - startDate) / (1000 * 60 * 60 * 24));
     document.getElementById("dayCounter").innerHTML =
       `Together for <span>${diffDays} days</span> &amp; counting 💞`;
+
+    // ── Same span expressed as years / months / days ──
+    let years  = today.getFullYear() - startDate.getFullYear();
+    let months = today.getMonth() - startDate.getMonth();
+    let days   = today.getDate() - startDate.getDate();
+
+    // Borrow days from the previous calendar month, then months from a year
+    if (days < 0) {
+      months--;
+      days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+    }
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+
+    const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+    const parts = [];
+    if (years)  parts.push(plural(years, 'year'));
+    if (months) parts.push(plural(months, 'month'));
+    if (days || !parts.length) parts.push(plural(days, 'day'));
+
+    document.getElementById("dayCounterYears").innerHTML =
+      `That's ${parts.join(', ')}`;
 
     // ── Rose petal rain ──
     (function spawnPetals() {
@@ -846,16 +1427,262 @@ On this special day, may you feel wrapped in my love across the miles, as if my 
       }
     })();
 
-    // ── Scroll-reveal with IntersectionObserver ──
-    const items = document.querySelectorAll('.tl-item');
+    // ── The winding pathway ──
+    const pathScroll    = document.getElementById('pathScroll');
+    const pathTrack     = document.getElementById('pathTrack');
+    const pathSvg       = document.getElementById('pathSvg');
+    const pathRoad      = document.getElementById('pathRoad');
+    const pathTravelled = document.getElementById('pathTravelled');
+    const pathBranches  = document.getElementById('pathBranches');
+    const items         = document.querySelectorAll('.tl-item');
+
+    // Set once the reader starts moving, so a redraw never yanks them back
+    let hasTravelled = false;
+    // Guards the scroll handler against our own programmatic parking
+    let selfScroll = false;
+
+    // ── Ghost branches ──
+    // At each milestone, roads we might have taken peel away from the one we
+    // did and dissolve. Deterministic pseudo-random: the same milestone grows
+    // the same branches on every redraw, so a resize doesn't reshuffle them.
+    function seededRandom(seed) {
+      let s = seed * 9301 + 49297;
+      return () => {
+        s = (s * 9301 + 49297) % 233280;
+        return s / 233280;
+      };
+    }
+
+    function drawBranches(stops, trackH) {
+      pathBranches.textContent = '';
+
+      stops.forEach((stop, i) => {
+        // The last stop is "Now & Always" — the story continues, so no
+        // roads-not-taken sprout from it.
+        if (i === stops.length - 1) return;
+
+        const rand = seededRandom(i + 1);
+        const branchCount = 1 + Math.floor(rand() * 2); // 1–2 per milestone
+
+        // Peel away from the road, not across it: a dot sitting above the
+        // track's midline sends its ghosts further up, and vice versa. Keeps
+        // the branches from tangling with the road we actually travelled.
+        const away = (stop.y < trackH / 2) ? -1 : 1;
+
+        // How much vertical room this dot actually has before the track edge
+        const room = Math.max(30, (away < 0 ? stop.y : trackH - stop.y) - 20);
+
+        for (let b = 0; b < branchCount; b++) {
+          // Fan the branches out at differing angles and lengths. The rise is
+          // a fraction of the room available, so branches fade out on their
+          // own terms instead of flattening against a short track's edge.
+          const reach  = 90 + rand() * 130;
+          const rise   = room * (0.45 + rand() * 0.5) * away * (b === 0 ? 1 : 0.55);
+          const startX = stop.x + 4;
+          const startY = stop.y;
+          const endX   = startX + reach;
+          const endY   = startY + rise;
+
+          // Belt and braces — the rise is already bounded by `room`
+          const clampedY = Math.max(12, Math.min(trackH - 12, endY));
+
+          const d = `M ${startX} ${startY}` +
+                    ` C ${startX + reach * 0.45} ${startY},` +
+                    ` ${endX - reach * 0.3} ${clampedY},` +
+                    ` ${endX} ${clampedY}`;
+
+          const el = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          el.setAttribute('class', 'path-branch');
+          el.setAttribute('d', d);
+          el.dataset.stop = i;
+          pathBranches.appendChild(el);
+        }
+
+        // The spark at the fork
+        const fork = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        fork.setAttribute('class', 'path-fork');
+        fork.setAttribute('cx', stop.x);
+        fork.setAttribute('cy', stop.y);
+        fork.setAttribute('r', 3);
+        fork.dataset.stop = i;
+        pathBranches.appendChild(fork);
+      });
+
+      // Re-light whatever the reader has already passed
+      items.forEach((item, i) => {
+        if (item.classList.contains('visible')) litBranches(i);
+      });
+    }
+
+    // Fade in the branches belonging to one milestone
+    function litBranches(index) {
+      pathBranches
+        .querySelectorAll(`[data-stop="${index}"]`)
+        .forEach(el => el.classList.add('lit'));
+    }
+
+    // Build a smooth S-curve that threads through every milestone dot.
+    function drawPath() {
+      const trackW = pathTrack.offsetWidth;
+      const trackH = pathTrack.offsetHeight;
+      pathSvg.setAttribute('viewBox', `0 0 ${trackW} ${trackH}`);
+
+      // Where each dot sits, in track coordinates. Measured from layout
+      // offsets, not getBoundingClientRect — the items carry a reveal
+      // transform that would otherwise skew every reading.
+      const stops = [...items].map(item => {
+        const dot = item.querySelector('.tl-dot');
+        return {
+          x: item.offsetLeft + dot.offsetLeft + dot.offsetWidth / 2,
+          y: item.offsetTop  + dot.offsetTop  + dot.offsetHeight / 2
+        };
+      });
+      if (!stops.length) return;
+
+      // Lead-in and lead-out so the road runs off both edges
+      const first = stops[0], last = stops[stops.length - 1];
+      const pts = [
+        { x: 0, y: first.y },
+        ...stops,
+        { x: trackW, y: last.y }
+      ];
+
+      // Cubic segments with horizontal handles — gives the road its gentle
+      // sway. Longer handles on the flat lead-in/lead-out runs so the road
+      // eases toward the edges instead of darting off them.
+      let d = `M ${pts[0].x} ${pts[0].y}`;
+      for (let i = 1; i < pts.length; i++) {
+        const a = pts[i - 1], b = pts[i];
+        const flatRun = (i === 1 || i === pts.length - 1);
+        const cx = (b.x - a.x) * (flatRun ? 0.75 : 0.5);
+        d += ` C ${a.x + cx} ${a.y}, ${b.x - cx} ${b.y}, ${b.x} ${b.y}`;
+      }
+
+      pathRoad.setAttribute('d', d);
+      pathTravelled.setAttribute('d', d);
+
+      drawBranches(stops, trackH);
+
+      // The side runway means the track opens on empty road — park the
+      // view on the first milestone instead, but only before the reader
+      // has started travelling.
+      if (!hasTravelled && items.length) {
+        const firstItem = items[0];
+        selfScroll = true;
+        pathScroll.scrollLeft =
+          firstItem.offsetLeft + firstItem.offsetWidth / 2 - pathScroll.clientWidth / 2;
+      }
+
+      const len = pathTravelled.getTotalLength();
+      pathTravelled.style.strokeDasharray  = len;
+      pathTravelled.style.strokeDashoffset = len;
+      pathTravelled.dataset.len = len;
+      updateTravelled();
+    }
+
+    // Reveal the road up to however far along the path you've scrolled.
+    // Progress is measured between the first and last milestone, not across
+    // the whole track — the side runway is empty road and shouldn't count.
+    function updateTravelled() {
+      const len = parseFloat(pathTravelled.dataset.len || 0);
+      if (!len || !items.length) return;
+
+      const centre = pathScroll.scrollLeft + pathScroll.clientWidth / 2;
+      const firstItem = items[0], lastItem = items[items.length - 1];
+      const start = firstItem.offsetLeft + firstItem.offsetWidth / 2;
+      const end   = lastItem.offsetLeft  + lastItem.offsetWidth / 2;
+
+      const span = end - start;
+      const progress = span > 0
+        ? Math.min(1, Math.max(0, (centre - start) / span))
+        : 1;
+
+      // Always show a little road ahead of the current position
+      const shown = Math.min(1, progress * 0.85 + 0.15);
+      pathTravelled.style.strokeDashoffset = len * (1 - shown);
+    }
+
+    // Fade each stop in as it scrolls into the viewport of the scroller,
+    // and let its roads-not-taken surface with it
+    const itemIndex = new Map([...items].map((el, i) => [el, i]));
     const obs = new IntersectionObserver((entries) => {
       entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-        }
+        if (!e.isIntersecting) return;
+        e.target.classList.add('visible');
+        litBranches(itemIndex.get(e.target));
       });
-    }, { threshold: 0.1 });
+    }, { root: pathScroll, threshold: 0.35 });
     items.forEach(i => obs.observe(i));
+
+    // ── Travelling the path by button and keyboard ──
+    const pathPrev     = document.getElementById('pathPrev');
+    const pathNext     = document.getElementById('pathNext');
+    const pathProgress = document.getElementById('pathProgress');
+
+    // Which milestone is nearest the middle of the view right now
+    function nearestStop() {
+      const centre = pathScroll.scrollLeft + pathScroll.clientWidth / 2;
+      let best = 0, bestDist = Infinity;
+      items.forEach((item, i) => {
+        const mid = item.offsetLeft + item.offsetWidth / 2;
+        const dist = Math.abs(mid - centre);
+        if (dist < bestDist) { bestDist = dist; best = i; }
+      });
+      return best;
+    }
+
+    function goToStop(index) {
+      const i = Math.max(0, Math.min(items.length - 1, index));
+      const item = items[i];
+      if (!item) return;
+      pathScroll.scrollTo({
+        left: item.offsetLeft + item.offsetWidth / 2 - pathScroll.clientWidth / 2,
+        behavior: 'smooth'
+      });
+    }
+
+    function updateNav() {
+      const at = nearestStop();
+      pathProgress.textContent = `${at + 1} / ${items.length}`;
+      pathPrev.disabled = at === 0;
+      pathNext.disabled = at === items.length - 1;
+    }
+
+    pathPrev.addEventListener('click', () => goToStop(nearestStop() - 1));
+    pathNext.addEventListener('click', () => goToStop(nearestStop() + 1));
+
+    // Arrow keys walk the path once it has focus
+    pathScroll.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight')     goToStop(nearestStop() + 1);
+      else if (e.key === 'ArrowLeft') goToStop(nearestStop() - 1);
+      else if (e.key === 'Home')      goToStop(0);
+      else if (e.key === 'End')       goToStop(items.length - 1);
+      else return;
+      e.preventDefault();
+    });
+
+    pathScroll.addEventListener('scroll', () => {
+      if (selfScroll) selfScroll = false;
+      else hasTravelled = true;
+      updateTravelled();
+      updateNav();
+    }, { passive: true });
+    window.addEventListener('resize', drawPath);
+    window.addEventListener('load', drawPath);
+    drawPath();
+    updateNav();
+
+    // Card heights shift once the serif faces land — redraw on the real metrics
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(drawPath);
+    }
+
+    // A vertical wheel gesture belongs to the page, never to the path —
+    // hijacking it traps the reader over the milestones. Travel along the
+    // path is by horizontal scroll, drag, arrow keys, or the buttons below.
+    // Shift+wheel is the one exception, since that's a deliberate sideways
+    // gesture the browser already maps to horizontal scrolling.
+
 
     // ── Tabs ──
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -872,11 +1699,77 @@ On this special day, may you feel wrapped in my love across the miles, as if my 
     });
 
     // ── Gift reveal ──
-    function revealPhoto() {
-      const wrap = document.getElementById('giftPhoto');
+    // Each gift card names its own photo wrap, so the surprise opens only
+    // for the year the reader is looking at.
+    function revealPhoto(id = 'giftPhoto') {
+      const wrap = document.getElementById(id);
+      if (!wrap) return;
       wrap.style.display = 'block';
       launchConfetti();
     }
+
+    // ── Story pager ──
+    // The letter is long, so it turns one page at a time. Dots let her jump
+    // straight to a page she wants to read again.
+    (function initStoryBook() {
+      const book = document.getElementById('storyBook');
+      if (!book) return;
+
+      const pages = [...book.querySelectorAll('.story-page')];
+      const dotsWrap = document.getElementById('storyDots');
+      const prev = document.getElementById('storyPrev');
+      const next = document.getElementById('storyNext');
+      let at = 0;
+
+      const dots = pages.map((_, i) => {
+        const d = document.createElement('button');
+        d.type = 'button';
+        d.className = 'story-dot';
+        d.setAttribute('role', 'tab');
+        d.setAttribute('aria-label', `Page ${i + 1}`);
+        d.addEventListener('click', () => show(i));
+        dotsWrap.appendChild(d);
+        return d;
+      });
+
+      function show(i, scroll = true) {
+        at = Math.max(0, Math.min(pages.length - 1, i));
+        pages.forEach((p, n) => p.classList.toggle('active', n === at));
+        dots.forEach((d, n) => {
+          d.classList.toggle('active', n === at);
+          d.setAttribute('aria-selected', n === at ? 'true' : 'false');
+        });
+        prev.disabled = at === 0;
+        next.disabled = at === pages.length - 1;
+        // On the last page, invite the moment rather than dead-ending it.
+        next.textContent = at === pages.length - 1 ? 'The end ♥' : 'Next →';
+
+        // Turning a page should land the reader at the top of it, but never
+        // yank the view on the very first render.
+        if (scroll) {
+          const top = book.getBoundingClientRect().top + window.scrollY - 90;
+          if (window.scrollY > top) window.scrollTo({ top, behavior: 'smooth' });
+        }
+      }
+
+      prev.addEventListener('click', () => show(at - 1));
+      next.addEventListener('click', () => {
+        if (at === pages.length - 1) launchConfetti();
+        else show(at + 1);
+      });
+
+      // Arrow keys turn pages while the letter is on screen
+      document.addEventListener('keydown', (e) => {
+        const panel = book.closest('.tab-panel');
+        if (!panel || !panel.classList.contains('active')) return;
+        if (e.key === 'ArrowRight')     show(at + 1);
+        else if (e.key === 'ArrowLeft') show(at - 1);
+        else return;
+        e.preventDefault();
+      });
+
+      show(0, false);
+    })();
 
     // ── Confetti ──
     const canvas = document.getElementById('confetti');

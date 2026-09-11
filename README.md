@@ -1,6 +1,6 @@
 # Journey of Us
 
-A personal timeline web page celebrating our relationship milestones.
+A personal timeline web page celebrating our relationship milestones. https://renardiadryan.github.io/journey-of-us/
 
 ## About
 
